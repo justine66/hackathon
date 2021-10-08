@@ -4,7 +4,8 @@
 
 #source : https://github.com/yuanDataScience/GEO_sra_tool_docker
 #build docker
-docker build -t huangyuan2000/geo_download_to_s3 
+git clone https://github.com/yuanDataScience/GEO_sra_tool_docker.git
+docker build -t huangyuan2000/geo_download_to_s3 ./GEO_sra_tool_docker
 
 #configure
 export AWS_ACCESS_KEY_ID="<id>"
