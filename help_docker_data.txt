@@ -15,6 +15,7 @@ export AWS_DEFAULT_REGION="<region>"
 docker run --rm -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" -e "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" -d huangyuan2000/geo_download_to_s3 GSEXXXXXX s3://yours3bucketfolder/(s3 bucket folder MUST ended by /) 
 
 #SRA data : 
+#source: https://github.com/ncbi/sra-tools/wiki/02.-Installing-SRA-Toolkit
 #docker : 
 wget --output-document sratoolkit.tar.gz http://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/current/sratoolkit.current-ubuntu64.tar.gz
 tar -vxzf sratoolkit.tar.gz
