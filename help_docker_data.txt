@@ -24,5 +24,9 @@ docker run -t --rm -v $PWD:/output:rw -w /output ncbi/sra-tools prefetch SRR1098
 #data du 2eme article
  Whole genome, RNA-seq and SNP array data have been submitted to the European Genome-phenome Archive (EGA) under study accession number EGAS00001000472. dataset accession : EGAD00001000372 and EGAD00010000468
 
+#source : https://github.com/EGA-archive/ega-download-client
 
- docker run --rm -v /tmp:/app -w /app quay.io/biocontainers/pyega3:3.4.0--py_0 pyega3 -d -t fetch n°accession
+#build ?
+docker pull quay.io/biocontainers/pyega3:3.4.1--py_0
+
+docker run --rm -v /tmp:/app -w /app quay.io/biocontainers/pyega3:3.4.0--py_0 pyega3 -d -t fetch n°accession
