@@ -2,9 +2,13 @@ params.project = "SRA062359"
 
 params.resultdir = 'results'
 
+params.list = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","Mt"]
+
 projectSRId = params.project
 
-int threads = Runtime.getRuntime().availableProcessors()
+list = params.list
+
+
 
 process getSRAIDs {
 	
@@ -28,7 +32,6 @@ process fastqDump {
 	
 	publishDir params.resultdir, mode: 'copy'
 
-	cpus threads
 
 	input:
 	val id from singleSRAId
@@ -38,7 +41,34 @@ process fastqDump {
 
 	script:
 	"""
-	parallel-fastq-dump --sra-id $id --threads ${task.cpus} --gzip
+	parallel-fastq-dump --sra-id $id --threads ${task.cpus} --gzip --split-files
 	"""	
 }
+process chromosome{
+
+	input:
+	val chr from list
+
+	output:
+	file 'ref.fa' into fasta
+
+	script: 
+	"""
+	wget -o $chr.fa.gz ftp://ftp.ensembl.org/pub/release-101/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.!${chr}.fa.gz | gunzip -c *.fa.gz > ref.fa    
+	""""
+}
+process index{
+	input:
+	file c from fasta
+
+	output:
+	file "format a trouver" into index 
+	script: 
+	"""
+	STAR --runThreadN <nb cpus> --runMode genomeGenerate --genomeDir ref/ --genomeFastaFiles ref.fa
+	"""
+}
+
+
+
 
