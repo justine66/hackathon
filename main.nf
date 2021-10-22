@@ -1,4 +1,4 @@
-params.project = ["SRA062369","SRA062359"]
+params.project = "SRA062359"
 
 params.resultdir = 'results'
 
@@ -18,7 +18,7 @@ process getSRAIDs {
 	
 	script:
 	"""
-	esearch -db sra -query $projectID  | efetch --format runinfo | grep SRR | cut -d ',' -f 1 >> sra.txt
+	esearch -db sra -query $projectID  | efetch --format runinfo | grep SRR | cut -d ',' -f 1 > sra.txt
 	"""
 }
 
