@@ -2,7 +2,7 @@ process count {
 
     publishDir params.resultdir, mode: 'copy'
 
-    cpus = 1
+    cpus = $task.cpus
 
     input:
     file '*.bam' from alignedReads.collect()
