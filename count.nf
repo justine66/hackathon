@@ -5,8 +5,8 @@ process count {
     cpus = 1
 
     input:
-    file '.bam' from alignedReads.collect()
-    file '.gtf' from human_genome
+    file '*.bam' from alignedReads.collect()
+    file 'annot.gtf' from human_genome
 
     output:
     file '.counts' into countData
