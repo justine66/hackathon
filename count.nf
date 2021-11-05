@@ -2,7 +2,7 @@ process count {
 
     publishDir params.resultdir, mode: 'copy'
 
-    cpus threads
+    cpus = 1
 
     input:
     file '.bam' from alignedReads.collect()
