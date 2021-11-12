@@ -29,7 +29,7 @@ process getSRAIDs {
 
 sraIDs.splitText().map { it -> it.trim() }.filter(  ~/^SRR62858.*/ ).set { singleSRAId }
 
-/*process fastqDump {
+process fastqDump {
 	
 	publishDir params.resultdir, mode: 'copy'
 
@@ -37,13 +37,14 @@ sraIDs.splitText().map { it -> it.trim() }.filter(  ~/^SRR62858.*/ ).set { singl
 	val id from singleSRAId
 
 	output:
-	file '*.fastq.gz' into reads
+	tuple file('*1.fastq.gz'),file('*2.fastq.gz'),val(id) into reads
+
 
 	script:
 	"""
 	parallel-fastq-dump --sra-id $id --threads ${task.cpus} --split-files --gzip
 	"""	
-}*/
+}
 
 process chromosome {
 
@@ -60,6 +61,8 @@ process chromosome {
 }
 
 process mergechr {
+	
+    publishDir params.resultdir, mode: 'copy'
 
     input:
     file allchr from chrfasta.collect()
@@ -74,10 +77,7 @@ process mergechr {
 }
 
 process gtf {
-    publishDir params.resultdir, mode: 'copy'
     
-    cpus=1
-
     output:
     file 'annot.gtf' into human_genome
 
@@ -90,39 +90,59 @@ process gtf {
 
 process index{
 
-
     input:
     file c from fasta
     file annot from human_genome
 
     output:
-    file '*.txt' into index
+    file 'ref/' into index
  
     script: 
     """
     mkdir ref
-    STAR --runThreadN 6 --runMode genomeGenerate --genomeDir ref --genomeFastaFiles ${c} --sjdbGTFfile ${annot}
+    STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir ref --genomeFastaFiles ${c} --sjdbGTFfile ${annot}
     """
 }
 
-/*process star {
+process mapping {
 
-    publishDir params.resultdir, mode: 'copy'
+	input:
+	tuple file (r1), file (r2), file (id) from reads
+	file ref from index
 
-    input:
-    file read from reads
-    file index from index
+	output:
+	file '*.bam' into lbam
 
-    output:
-    file '.bam' into alignedReads
+	script :
+	"""
+	STAR --outSAMstrandField intronMotif \
+	--outFilterMismatchNmax 4 \
+	--outFilterMultimapNmax 10 \
+	--genomeDir ${ref} \
+	--readFilesIn <(gunzip -c ${r1}) <(gunzip -c ${r2}) \
+	--runThreadN ${task.cpus} \
+	--outSAMunmapped None \
+	--outSAMtype BAM SortedByCoordinate \
+	--outStd BAM_SortedByCoordinate \
+	--genomeLoad NoSharedMemory \
+	--limitBAMsortRAM ${task.memory} \
+	> ${id}.bam
+	"""
+}
 
-    script:
-    readName = read.toString() - ~/(.fastq.gz)?$/
+process mapping2 {
+	
+	input:
+	file bam from lbam
 
-    """
-    STAR --genomeDir $index --readFilesIn $read --readFilesCommand zcat --outSAMtype BAM Unsorted --outFileNamePrefix $readName
-    """
-}*/
+	output:
+	file '*.idx' into map
 
+	script:
+	"""
+	samtools index ${bam}
+	"""
+
+}
 
 
