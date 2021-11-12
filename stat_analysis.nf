@@ -5,7 +5,7 @@ process stat_analysis {
     cpus = $task.cpus
 
     input:
-    file '.counts' into countData counts
+    file '*.counts' into countData counts
 
     output:
     file "*.pdf" into analysis
@@ -26,7 +26,8 @@ process stat_analysis {
         --outdir ./ \\
         --cores $task.cpus \\
         $options.args
-    if [ -f "R_sessionInfo.log" ]; then
+    if [ -f "R_sessionInfo.log" ]
+    then
         sed "s/deseq2_pca/${label_lower}_deseq2_pca/g" <$pca_header_multiqc >tmp.txt
         sed -i -e "s/DESeq2 PCA/${label_upper} DESeq2 PCA/g" tmp.txt
         cat tmp.txt *.pca.vals.txt > ${label_lower}.pca.vals_mqc.tsv
