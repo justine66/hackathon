@@ -5,14 +5,14 @@ process count {
     cpus = $task.cpus
 
     input:
-    file '*.bam' from alignedReads.collect()
-    file 'annot.gtf' from human_genome
+    file bam from alignedReads.collect()
+    file gtf from human_genome
 
     output:
-    file '.counts' into countData
+    file counts into countData
 
     script:
     """
-    featureCounts -T <CPUS> -t gene -g gene_id -s 0 -a input.gtf -o output.counts input.bam
+    featureCounts -T $cpus -t gene -g gene_id -s 0 -a $gtf -o output.counts $bam
     """
 }
