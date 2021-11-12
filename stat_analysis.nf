@@ -15,7 +15,7 @@ process stat_analysis {
     file "*sample.dists.txt" into analysis
     file "*sample.dists_mqc.tsv" into analysis
     file "*.log" into analysis
-    file "size_factors" into analysis
+    file "size_factors.txt" into analysis
 
     script:
     def label_lower = params.multiqc_label.toLowerCase()
