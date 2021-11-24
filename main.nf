@@ -27,7 +27,7 @@ process getSRAIDs {
 	"""
 }
 
-sraIDs.splitText().map { it -> it.trim() }.filter(  ~/^SRR62858.*/ ).set { singleSRAId }
+sraIDs.splitText().map { it -> it.trim() }.filter(  ~/^SRR62858.*/ ).set { singleSRAId}
 
 process fastqDump {
 	
@@ -37,12 +37,12 @@ process fastqDump {
 	val id from singleSRAId
 
 	output:
-	tuple file('*1.fastq.gz'),file('*2.fastq.gz'),val(id) into reads
-
+	tuple file('*1.fastq.gz'),file('*2.fastq.gz') into reads
+	val id into idmapping
 
 	script:
 	"""
-	parallel-fastq-dump --sra-id $id --threads ${task.cpus} --split-files --gzip
+	parallel-fastq-dump --sra-id $id --threads ${task.cpus} --split-files --gzip;
 	"""	
 }
 
@@ -88,27 +88,31 @@ process gtf {
     """
 }
 
+
+
 process index{
 
-    input:
-    file c from fasta
-    file annot from human_genome
+	input:
+	file c from fasta
+	file annot from human_genome
 
-    output:
-    file 'ref/' into index
- 
-    script: 
-    """
-    mkdir ref
-    STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir ref --genomeFastaFiles ${c} --sjdbGTFfile ${annot}
-    """
+	output:
+	file 'ref/' into index
+
+	script: 
+	"""
+	mkdir ref
+	chmod +x ref
+	STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir ref --genomeFastaFiles ${c} --sjdbGTFfile ${annot}
+	"""
 }
 
 process mapping {
 
 	input:
-	tuple file (r1), file (r2), file (id) from reads
+	tuple file (r1), file (r2) from reads
 	file ref from index
+	val id from idmapping
 
 	output:
 	file '*.bam' into lbam
@@ -118,14 +122,14 @@ process mapping {
 	STAR --outSAMstrandField intronMotif \
 	--outFilterMismatchNmax 4 \
 	--outFilterMultimapNmax 10 \
-	--genomeDir ${ref} \
+	--genomeDir ${ref}\
 	--readFilesIn <(gunzip -c ${r1}) <(gunzip -c ${r2}) \
 	--runThreadN ${task.cpus} \
 	--outSAMunmapped None \
 	--outSAMtype BAM SortedByCoordinate \
 	--outStd BAM_SortedByCoordinate \
 	--genomeLoad NoSharedMemory \
-	--limitBAMsortRAM ${task.memory} \
+	--limitBAMsortRAM 50000000000 \
 	> ${id}.bam
 	"""
 }
@@ -133,16 +137,17 @@ process mapping {
 process mapping2 {
 	
 	input:
-	file bam from lbam
+	file bam from lbam.collect()
 
 	output:
-	file '*.idx' into map
+	file '*.bam' into map
 
 	script:
 	"""
 	samtools index ${bam}
 	"""
-
 }
+
+
 
 
