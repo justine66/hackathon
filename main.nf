@@ -11,8 +11,6 @@ list = params.list
 
 process getSRAIDs {
 	
-	cpus 1
-
 	publishDir params.resultdir, mode: 'copy'
 
 	input:
@@ -45,7 +43,7 @@ process fastqDump {
 	parallel-fastq-dump --sra-id $id --threads ${task.cpus} --split-files --gzip;
 	"""	
 }
-
+readss = idmapping.join(reads)
 process chromosome {
 
     input:
@@ -112,9 +110,8 @@ process mapping {
 	publishDir params.resultdir, mode: 'copy'
 
 	input:
-	tuple file (r1), file (r2) from reads
+	tuple file (r1), file (r2), val id  from reads
 	file ref from index
-	val id from idmapping
 
 	output:
 	file '*.bam' into lbam
