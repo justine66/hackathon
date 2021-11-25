@@ -2,13 +2,18 @@ params.project = "SRA062359"
 
 params.resultdir = 'results'
 
+params.list = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","MT"]
+
 projectSRId = params.project
 
-int threads = Runtime.getRuntime().availableProcessors()
+list = params.list
+
 
 process getSRAIDs {
 	
 	cpus 1
+
+	publishDir params.resultdir, mode: 'copy'
 
 	input:
 	val projectID from projectSRId
@@ -22,23 +27,128 @@ process getSRAIDs {
 	"""
 }
 
-sraIDs.splitText().map { it -> it.trim() }.set { singleSRAId }
+sraIDs.splitText().map { it -> it.trim() }.filter(  ~/^SRR62858.*/ ).set { singleSRAId}
 
 process fastqDump {
 	
 	publishDir params.resultdir, mode: 'copy'
 
-	cpus threads
-
 	input:
 	val id from singleSRAId
 
 	output:
-	file '*.fastq.gz' into reads
+	tuple file('*1.fastq.gz'),file('*2.fastq.gz') into reads
+	val id into idmapping
 
 	script:
 	"""
-	parallel-fastq-dump --sra-id $id --threads ${task.cpus} --gzip
+	parallel-fastq-dump --sra-id $id --threads ${task.cpus} --split-files --gzip;
 	"""	
 }
+
+process chromosome {
+
+    input:
+    val chr from list
+
+    output:
+    file 'Homo_sapiens.GRCh38.dna.chromosome.*.fa.gz' into chrfasta
+
+    script: 
+    """
+    wget -o ${chr}.fa.gz "ftp://ftp.ensembl.org/pub/release-104/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.${chr}.fa.gz"
+    """
+}
+
+process mergechr {
+	
+    publishDir params.resultdir, mode: 'copy'
+
+    input:
+    file allchr from chrfasta.collect()
+
+    output:
+    file 'ref.fa' into fasta
+
+    script:
+    """
+    gunzip -c ${allchr}> ref.fa
+    """
+}
+
+process gtf {
+    
+    output:
+    file 'annot.gtf' into human_genome
+
+    script:
+    """
+    wget ftp://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/Homo_sapiens.GRCh38.104.chr.gtf.gz
+    gunzip -c Homo_sapiens.GRCh38.104.chr.gtf.gz > annot.gtf
+    """
+}
+
+
+
+process index{
+	publishDir params.resultdir, mode: 'copy'
+
+	input:
+	file c from fasta
+	file annot from human_genome
+
+	output:
+	file 'ref/' into index
+
+	script: 
+	"""
+	mkdir ref
+	chmod +x ref
+	STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir ref --genomeFastaFiles ${c} --sjdbGTFfile ${annot}
+	"""
+}
+
+process mapping {
+	publishDir params.resultdir, mode: 'copy'
+
+	input:
+	tuple file (r1), file (r2) from reads
+	file ref from index
+	val id from idmapping
+
+	output:
+	file '*.bam' into lbam
+
+	script :
+	"""
+	STAR --outSAMstrandField intronMotif \
+	--outFilterMismatchNmax 4 \
+	--outFilterMultimapNmax 10 \
+	--genomeDir ${ref}\
+	--readFilesIn <(gunzip -c ${r1}) <(gunzip -c ${r2}) \
+	--runThreadN ${task.cpus} \
+	--outSAMunmapped None \
+	--outSAMtype BAM SortedByCoordinate \
+	--outStd BAM_SortedByCoordinate \
+	--genomeLoad NoSharedMemory \
+	--limitBAMsortRAM 50000000000 \
+	> ${id}.bam
+	"""
+}
+
+process mapping2 {
+	publishDir params.resultdir, mode: 'copy'
+	
+	input:
+	file bam from lbam
+
+	output:
+	file '*.bai' into map
+
+	script:
+	"""
+	samtools index ${bam}
+	"""
+}
+
 

@@ -1,7 +1,0 @@
-
-#data du 1er article
- Gene expression micro array and array CGH data have been deposited at the Gene Expression Omnibus (GEO) (accession numbers GSE39717 and GSE42740, respectively). Exome sequences and RNA-seq data are available at the NCBI Sequence Read Archive (accession numbers SRA062369 and SRA062359, respectively).
-
-lien pour le site qui m'a aider pour le nextflow :
-https://medium.com/@alaincoletta/how-to-create-a-nextflow-pipeline-with-all-necessary-tools-for-a-series-of-repetitive-35cf5b3b19a8
-
