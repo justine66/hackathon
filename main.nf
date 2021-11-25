@@ -91,6 +91,7 @@ process gtf {
 
 
 process index{
+	publishDir params.resultdir, mode: 'copy'
 
 	input:
 	file c from fasta
@@ -108,6 +109,7 @@ process index{
 }
 
 process mapping {
+	publishDir params.resultdir, mode: 'copy'
 
 	input:
 	tuple file (r1), file (r2) from reads
@@ -135,19 +137,18 @@ process mapping {
 }
 
 process mapping2 {
+	publishDir params.resultdir, mode: 'copy'
 	
 	input:
-	file bam from lbam.collect()
+	file bam from lbam
 
 	output:
-	file '*.bam' into map
+	file '*.bai' into map
 
 	script:
 	"""
 	samtools index ${bam}
 	"""
 }
-
-
 
 
