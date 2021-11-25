@@ -118,6 +118,7 @@ process mapping {
 
 	output:
 	file '*.bam' into lbam
+	file '*.bam' into alignedReads
 
 	script :
 	"""
@@ -151,4 +152,57 @@ process mapping2 {
 	"""
 }
 
+process count {
 
+    publishDir params.resultdir, mode: 'copy'
+
+    input:
+    file bam from alignedReads.collect()
+    file gtf from human_genome
+
+    output:
+    tuple file ('output.counts'), file ('output.counts.summary') into countData
+
+    script:
+    """
+    featureCounts -T ${task.cpus} -t gene -g gene_id -s 0 -a ${gtf} -o output.counts ${bam}
+    """
+}
+
+process stat_analysis {
+
+    publishDir params.resultdir, mode: 'copy'
+
+    input:
+    tuple file (counts), file (summary) from countData
+
+    output:
+    file "*.pdf" into analysis_pdf
+    file "*.RData" into analysis_Rdata
+    file "*pca.vals.txt" into analysis_pcatxt
+    file "*pca.vals_mqc.tsv" into analysis_pcatsv
+    file "*sample.dists.txt" into analysis_diststxt
+    file "*sample.dists_mqc.tsv" into analysis_diststsv
+    file "*.log" into analysis_log
+    file "size_factors.txt" into analysis_size
+
+    script:
+    def label_lower = params.multiqc_label.toLowerCase()
+    def label_upper = params.multiqc_label.toUpperCase()
+    """
+    deseq2_qc.r \\
+        --count_file ${counts} \\
+        --outdir ./ \\
+        --cores ${task.cpus} \\
+        $options.args
+    if [ -f "R_sessionInfo.log" ]
+    then
+        sed "s/deseq2_pca/${label_lower}_deseq2_pca/g" <$pca_header_multiqc >tmp.txt
+        sed -i -e "s/DESeq2 PCA/${label_upper} DESeq2 PCA/g" tmp.txt
+        cat tmp.txt *.pca.vals.txt > ${label_lower}.pca.vals_mqc.tsv
+        sed "s/deseq2_clustering/${label_lower}_deseq2_clustering/g" <$clustering_header_multiqc >tmp.txt
+        sed -i -e "s/DESeq2 sample/${label_upper} DESeq2 sample/g" tmp.txt
+        cat tmp.txt *.sample.dists.txt > ${label_lower}.sample.dists_mqc.tsv
+    fi
+    """
+}
