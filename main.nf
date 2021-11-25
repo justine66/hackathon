@@ -167,39 +167,20 @@ process count {
 }
 
 process stat_analysis {
-
     publishDir params.resultdir, mode: 'copy'
 
     input:
-    tuple file (counts), file (summary) from countData
+    tuple file ('output.counts'), file (summary) from countData
 
     output:
-    file "*.pdf" into analysis_pdf
-    file "*.RData" into analysis_Rdata
-    file "*pca.vals.txt" into analysis_pcatxt
-    file "*pca.vals_mqc.tsv" into analysis_pcatsv
-    file "*sample.dists.txt" into analysis_diststxt
-    file "*sample.dists_mqc.tsv" into analysis_diststsv
-    file "*.log" into analysis_log
-    file "size_factors.txt" into analysis_size
+    tuple file ('heatmap.pdf'), file ('d.vst_1000genes.txt') into ana_stat
 
     script:
-    def label_lower = params.multiqc_label.toLowerCase()
-    def label_upper = params.multiqc_label.toUpperCase()
     """
-    deseq2_qc.r \\
-        --count_file ${counts} \\
-        --outdir ./ \\
-        --cores ${task.cpus} \\
-        $options.args
-    if [ -f "R_sessionInfo.log" ]
-    then
-        sed "s/deseq2_pca/${label_lower}_deseq2_pca/g" <$pca_header_multiqc >tmp.txt
-        sed -i -e "s/DESeq2 PCA/${label_upper} DESeq2 PCA/g" tmp.txt
-        cat tmp.txt *.pca.vals.txt > ${label_lower}.pca.vals_mqc.tsv
-        sed "s/deseq2_clustering/${label_lower}_deseq2_clustering/g" <$clustering_header_multiqc >tmp.txt
-        sed -i -e "s/DESeq2 sample/${label_upper} DESeq2 sample/g" tmp.txt
-        cat tmp.txt *.sample.dists.txt > ${label_lower}.sample.dists_mqc.tsv
-    fi
+    Rscript /ifb/data/mydatalocal/stat_analysis.R\
+        --count_file ${'output.counts'} \
+        --outdir ./ \
+        --cores ${task.cpus}
+
     """
 }
