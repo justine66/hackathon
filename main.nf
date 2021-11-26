@@ -1,6 +1,6 @@
-params.project = "SRA062359" #numeo SRA fournis par l'article
-params.resultdir = 'results' #repertoire de sortie des reultats
-params.list = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","MT"] #liste de tous les chromosomes humain
+params.project = "SRA062359" //numero SRA fournis par l'article
+params.resultdir = 'results' //repertoire de sortie des resultats
+params.list = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","MT"] #liste de tous les chromosomes humains
 projectSRId = params.project
 list = params.list
 
@@ -28,18 +28,18 @@ process fastqDump {
 	publishDir params.resultdir, mode: 'copy'
 
 	input:
-	val id from singleSRAId
+	val id from singleSRAId //pour chaque numero SRR
 
 	output:
-	tuple file('*1.fastq.gz'),file('*2.fastq.gz') into reads #associe les read 1 et 2 dans un tuple
-	val id into idmapping #recupere les SRR associe aux reads
+	tuple file('*1.fastq.gz'),file('*2.fastq.gz') into reads //associe les read 1 et 2 dans un tuple
+	val id into idmapping //recupere les SRR associe aux reads
 
 	script:
 	"""
 	parallel-fastq-dump --sra-id $id --threads ${task.cpus} --split-files --gzip;
 	"""	
 }
-readss = idmapping.join(reads) #ajoute les SRR aux tuples des reads pour former des tuble reads1 reads2 SRR
+readss = idmapping.join(reads) //ajoute les SRR aux tuples des reads pour former des tuples : (file reads1,  file reads2, val SRR)
 
 process chromosome {
 
@@ -47,7 +47,7 @@ process chromosome {
     val chr from list
 
     output:
-    file 'Homo_sapiens.GRCh38.dna.chromosome.*.fa.gz' into chrfasta #recuperes tous les chromosomes telecharges dans 1 channel
+    file 'Homo_sapiens.GRCh38.dna.chromosome.*.fa.gz' into chrfasta //place tous les chromosomes telecharges dans 1 channel
 
     script: 
     """
@@ -60,10 +60,10 @@ process mergechr {
     publishDir params.resultdir, mode: 'copy'
 
     input:
-    file allchr from chrfasta.collect() #attend que tous les chromosomes soit telecharges
+    file allchr from chrfasta.collect() //attend que tous les chromosomes soient telecharges
 
     output:
-    file 'ref.fa' into fasta #unique fichier contenant toutes les chromosomes
+    file 'ref.fa' into fasta //unique fichier contenant tous les chromosomes
 
     script:
     """
@@ -83,8 +83,6 @@ process gtf {
     """
 }
 
-
-
 process index{
 	publishDir params.resultdir, mode: 'copy'
 
@@ -93,7 +91,7 @@ process index{
 	file annot from human_genome
 
 	output:
-	file 'ref/' into index #renvoie un unique repertoire contenant tous les fichiers de l'index de reference
+	file 'ref/' into index //renvoie un unique repertoire contenant tous les fichiers de l'index de reference
 
 	script: 
 	"""
@@ -111,8 +109,8 @@ process mapping {
 	file ref from index
 
 	output:
-	file '*.bam' into lbam		#recupere les fichier bam pour l'indexation samtools
-	file '*.bam' into alignedReads	#recupere les fichier bam pour le comptage
+	file '*.bam' into lbam		//recupere les fichier bam pour l'indexation samtools
+	file '*.bam' into alignedReads	//recupere les fichier bam pour le comptage
 
 	script :
 	"""
@@ -132,6 +130,7 @@ process mapping {
 }
 
 process mapping2 {
+
 	publishDir params.resultdir, mode: 'copy'
 	
 	input:
@@ -151,7 +150,7 @@ process count {
     publishDir params.resultdir, mode: 'copy'
 
     input:
-    file bam from alignedReads.collect() #attend que tous les fichiers bam soit disponible
+    file bam from alignedReads.collect() //attend que tous les fichiers bam soient disponibles
     file gtf from human_genome
 
     output:
