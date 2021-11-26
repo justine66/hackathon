@@ -1,11 +1,7 @@
-params.project = "SRA062359"
-
-params.resultdir = 'results'
-
-params.list = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","MT"]
-
+params.project = "SRA062359" #numeo SRA fournis par l'article
+params.resultdir = 'results' #repertoire de sortie des reultats
+params.list = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","MT"] #liste de tous les chromosomes humain
 projectSRId = params.project
-
 list = params.list
 
 
@@ -35,22 +31,23 @@ process fastqDump {
 	val id from singleSRAId
 
 	output:
-	tuple file('*1.fastq.gz'),file('*2.fastq.gz') into reads
-	val id into idmapping
+	tuple file('*1.fastq.gz'),file('*2.fastq.gz') into reads #associe les read 1 et 2 dans un tuple
+	val id into idmapping #recupere les SRR associe aux reads
 
 	script:
 	"""
 	parallel-fastq-dump --sra-id $id --threads ${task.cpus} --split-files --gzip;
 	"""	
 }
-readss = idmapping.join(reads)
+readss = idmapping.join(reads) #ajoute les SRR aux tuples des reads pour former des tuble reads1 reads2 SRR
+
 process chromosome {
 
     input:
     val chr from list
 
     output:
-    file 'Homo_sapiens.GRCh38.dna.chromosome.*.fa.gz' into chrfasta
+    file 'Homo_sapiens.GRCh38.dna.chromosome.*.fa.gz' into chrfasta #recuperes tous les chromosomes telecharges dans 1 channel
 
     script: 
     """
@@ -63,10 +60,10 @@ process mergechr {
     publishDir params.resultdir, mode: 'copy'
 
     input:
-    file allchr from chrfasta.collect()
+    file allchr from chrfasta.collect() #attend que tous les chromosomes soit telecharges
 
     output:
-    file 'ref.fa' into fasta
+    file 'ref.fa' into fasta #unique fichier contenant toutes les chromosomes
 
     script:
     """
@@ -96,7 +93,7 @@ process index{
 	file annot from human_genome
 
 	output:
-	file 'ref/' into index
+	file 'ref/' into index #renvoie un unique repertoire contenant tous les fichiers de l'index de reference
 
 	script: 
 	"""
@@ -114,8 +111,8 @@ process mapping {
 	file ref from index
 
 	output:
-	file '*.bam' into lbam
-	file '*.bam' into alignedReads
+	file '*.bam' into lbam		#recupere les fichier bam pour l'indexation samtools
+	file '*.bam' into alignedReads	#recupere les fichier bam pour le comptage
 
 	script :
 	"""
@@ -154,7 +151,7 @@ process count {
     publishDir params.resultdir, mode: 'copy'
 
     input:
-    file bam from alignedReads.collect()
+    file bam from alignedReads.collect() #attend que tous les fichiers bam soit disponible
     file gtf from human_genome
 
     output:
