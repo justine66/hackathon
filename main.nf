@@ -1,6 +1,6 @@
 params.project = "SRA062359" //numero SRA fournis par l'article
 params.resultdir = 'results' //repertoire de sortie des resultats
-params.list = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","MT"] #liste de tous les chromosomes humains
+params.list = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","MT"] //liste de tous les chromosomes humains
 projectSRId = params.project
 list = params.list
 
@@ -31,15 +31,15 @@ process fastqDump {
 	val id from singleSRAId //pour chaque numero SRR
 
 	output:
-	tuple file('*1.fastq.gz'),file('*2.fastq.gz') into reads //associe les read 1 et 2 dans un tuple
-	val id into idmapping //recupere les SRR associe aux reads
+	tuple val (id) ,file('*1.fastq.gz') into reads_1  // associe les SRR au read1 dans un tuple
+    	tuple val (id),file('*2.fastq.gz') into reads_2  // associe les SRR au read 2 dans un tuple
 
 	script:
 	"""
 	parallel-fastq-dump --sra-id $id --threads ${task.cpus} --split-files --gzip;
 	"""	
 }
-readss = idmapping.join(reads) //ajoute les SRR aux tuples des reads pour former des tuples : (file reads1,  file reads2, val SRR)
+readss = reads_2.join(reads_1) //ajoute les SRR aux tuples des reads pour former des tuples : (file reads1,  file reads2, val SRR)
 
 process chromosome {
 
@@ -105,7 +105,7 @@ process mapping {
 	publishDir params.resultdir, mode: 'copy'
 
 	input:
-	tuple file (r1), file (r2), val id  from reads
+	tuple file (r1), file (r2), val id  from readss
 	file ref from index
 
 	output:
@@ -173,8 +173,8 @@ process stat_analysis {
 
     script:
     """
-    Rscript /ifb/data/mydatalocal/stat_analysis.R\
-        --count_file ${'output.counts'} \
+    Rscript /ifb/data/mydatalocal/stat_analysis.R\  // execute le script R
+        --count_file ${'output.counts'} \       // associe le nom du fichier à une variable R
         --outdir ./ \
         --cores ${task.cpus}
 
