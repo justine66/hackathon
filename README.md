@@ -33,7 +33,7 @@
     
   Les [Dockers](https://www.docker.com/en) utilisés sont : 
      
-   * [pprietob/star-nf](https://hub.docker.com/r/pprietob/star-nf) : utilisé pour asocier les read 1 et 2, créer l'index de référence et réaliser le mapping des       reads
+   * [pprietob/star-nf](https://hub.docker.com/r/pprietob/star-nf) : utilisé pour récuperer les fichiers fastq, associer les reads 1 et 2, créer l'index de référence et réaliser le mapping des reads
    * [evolbioinfo/samtools](https://hub.docker.com/r/evolbioinfo/samtools) (version 1.14) : utilisé pour indexer le mapping
    * [evolbioinfo/subread:v2.0.1](https://hub.docker.com/r/evolbioinfo/subread) (version 2.0.1) : utilisé pour réaliser la matrice de comptage
    * [evolbioinfo/deseq2:v1.28.1](https://hub.docker.com/r/evolbioinfo/deseq2) (version 1.28.1) : utilisé pour l'analyse statistique R
