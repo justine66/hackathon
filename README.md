@@ -1,5 +1,5 @@
 <div align="center"><h1>Reproduction d'analyses RNA-seq à l'aide d'un workflow</h1></div>
-
+<br>
 <div align="justify">
   <p>
     Dans le cadre de notre formation en M2 AMI2B à l'Université Paris-Saclay, nous avons été amenés à réaliser un workflow d'analyses RNA-Seq pour l'UE Hackathon     Reproductible. L'objectif de ce Projet consiste à reproduire les résultats des analyses décrites dans ces deux articles :
@@ -23,6 +23,18 @@
   </p>
 </div>
 
+<div align="left"><h2>Résultats</h2></div>
+  <p>
+  
+  Une fois l'exécution du workflow terminée, 5 fichiers sont accessibles dans le répertoire `/results` : 
+  
+  * `PCA_GraphOfIndividuals.pdf` : graphe PCA
+  * `plot_counts.pdf` : graphe du nombre de comptages normalisé du gène le plus différentiellement exprimé pour les deux phénotypes
+  * `heatmap_MostVariableGenes.pdf` : heatmap des comptages normalisés des 30 gènes les plus différentiellement exprimés entre les deux phénotypes
+  * `DESeq_results.txt` : matrice de résultats de l’analyse d’expression différentielle
+  * `MostVariableGenes.txt` : liste ordonnée des 30 gènes les plus différentiellement exprimés
+  </p>
+</div>
 
 <div align="left"><h2>Ressources utilisées</h2></div>
 
