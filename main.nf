@@ -173,9 +173,6 @@ process stat_analysis {
 
     script:
     """
-    Rscript /ifb/data/mydatalocal/stat_analysis.r\
-			--count_file ${'output.counts'} \
-			--outdir ./ \
-			--cores ${task.cpus}
+    stat_analysis.r ${'output.counts'} $PWD
     """
 }
