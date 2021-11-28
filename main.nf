@@ -166,17 +166,16 @@ process stat_analysis {
     publishDir params.resultdir, mode: 'copy'
 
     input:
-    tuple file ('output.counts'), file (summary) from countData
+    file 'output.counts' from countData
 
     output:
-    tuple file ('heatmap.pdf'), file ('d.vst_1000genes.txt') into ana_stat
+    tuple file('PCA_GraphOfIndividuals.pdf'), file('DESeq_results.txt'), file('plot_counts.pdf'), file ('heatmap_MostVariableGenes.pdf'), file ('MostVariableGenes.txt') into ana_stat
 
     script:
     """
-    Rscript /ifb/data/mydatalocal/stat_analysis.R\  // execute le script R
-        --count_file ${'output.counts'} \       // associe le nom du fichier à une variable R
-        --outdir ./ \
-        --cores ${task.cpus}
-
+    Rscript /ifb/data/mydatalocal/stat_analysis.r\
+			--count_file ${'output.counts'} \
+			--outdir ./ \
+			--cores ${task.cpus}
     """
 }
