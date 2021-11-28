@@ -14,12 +14,17 @@
 <div align="justify">
   <p>
     Le workflow s'exécute dans Nextflow et fait appel à Docker pour les conteneurs. Nextflow est lancé depuis Conda (Bioconda). Pour exécuter le workflow, il faut     donc au préalable avoir installé Conda, Nextflow et Docker sur sa machine. La configuration du workflow proposée nécessite d'avoir au minimum 16 CPUs et 50 GB     de mémoire vive.  <br>
-    Procédure à suivre pour lancer le workflow : 
+    Procédure à suivre pour lancer le workflow :  <br>
+    Commencer par récupérer les différents scripts et accorder les permissions au répertoire bin :
     
-    ```
+    $ git clone git@github.com:justine66/hackathon.git
+    $ sudo chmod -R a+rwx bin
+  
+   Puis activer Conda et lancer le workflow : 
+    
     $ conda activate nextflow
     $ nextflow run main.nf -resume
-    ```
+    
   </p>
 </div>
 
