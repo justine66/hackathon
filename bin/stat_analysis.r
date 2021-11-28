@@ -1,3 +1,4 @@
+#!/usr/bin/Rscript --slave
 ###############################################################################
 ########################      STATISTICAL ANALYSIS      #######################
 ###############################################################################
@@ -18,7 +19,11 @@ library(FactoMineR)             # Loading packahe for the PCA
 
 #### Data Loading
 # Counts Matrix
-count_file = read.table("output.counts", header=T)    # Loading count matrix file 
+args = commandArgs(T)
+counts_file = args[1]
+dir = args[2]
+path = paste(dir, "/results/", sep="")
+count_file = read.table(paste(path, counts_file, sep=""), header=T)    # Loading count matrix file
 counts = count_file[,7:14]
 rownames(counts) = count_file[,1]
 
