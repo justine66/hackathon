@@ -105,7 +105,7 @@ process mapping {
 	publishDir params.resultdir, mode: 'copy'
 
 	input:
-	tuple file (r1), file (r2), val id  from readss
+	tuple val (id), file (r2), file (r1)  from readss
 	file ref from index
 
 	output:
