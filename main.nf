@@ -31,8 +31,8 @@ process fastqDump {
 	val id from singleSRAId //pour chaque numero SRR
 
 	output:
-	tuple val (id) ,file('*1.fastq.gz') into reads_1  // associe les SRR au read1 dans un tuple
-    	tuple val (id),file('*2.fastq.gz') into reads_2  // associe les SRR au read 2 dans un tuple
+	tuple val (id) ,file('*1.fastq.gz') into reads_1  // associe les SRR aux read1 dans un tuple
+    	tuple val (id),file('*2.fastq.gz') into reads_2  // associe les SRR aux read 2 dans un tuple
 
 	script:
 	"""
@@ -109,8 +109,8 @@ process mapping {
 	file ref from index
 
 	output:
-	file '*.bam' into lbam		//recupere les fichier bam pour l'indexation samtools
-	file '*.bam' into alignedReads	//recupere les fichier bam pour le comptage
+	file '*.bam' into lbam		//recupere les fichiers bam pour l'indexation samtools
+	file '*.bam' into alignedReads	//recupere les fichiers bam pour le comptage
 
 	script :
 	"""
