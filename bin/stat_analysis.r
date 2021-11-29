@@ -82,7 +82,7 @@ significative_DEgenes = significative_DEgenes[, c(2,6)]
 write.table(significative_DEgenes, "Significative_DEgenes.txt", sep="\t")   # output file (matrix format txt) of previous matrix 
 
 summary.df = as.data.frame(matrix("", ncol= 3, nrow = 3))  # DataFrame whose summarise previous matrix
-rownames(summary.df) = c("significantly differentially expressed ", "underexpressed genes", "overexpressed genes")
+rownames(summary.df) = c("significantly differentially expressed ", "overexpressed genes in mutants", "overexpressed genes in wild types")
 colnames(summary.df) = c("Amount", "Ratio (significantly differentially expressed)", "Ratio (all expressed genes)")
 
 summary.df[1,1] = dim(significative_DEgenes)[1]
