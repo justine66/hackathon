@@ -154,7 +154,7 @@ process count {
     file gtf from human_genome
 
     output:
-    tuple file ('output.counts'), file ('output.counts.summary') into countData
+    tuple file ('output.counts'), file ('output.counts.summary') into countData  //recupere la matrice de comptage et le résumé de l’attribution des reads
 
     script:
     """
@@ -170,7 +170,7 @@ process stat_analysis {
 
     output:
     tuple file('PCA_GraphOfIndividuals.pdf'), file('DESeq_results.txt'), file('plot_counts.pdf'), file ('heatmap_MostVariableGenes.pdf'), file ('MostVariableGenes.txt'),
-          file ('Significative_DEgenes.txt'), file('Significative_DEgenes_Summary.txt') into ana_stat
+          file ('Significative_DEgenes.txt'), file('Significative_DEgenes_Summary.txt') into ana_stat //Récupère les résultats de l'analyse statistique
 
     script:
     """
