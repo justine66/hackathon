@@ -7,13 +7,13 @@ list = params.list
 
 process getSRAIDs {
 	
-	publishDir params.resultdir, mode: 'copy'
+	publishDir params.resultdir, mode: 'copy' //Les résultats sont copié dans le dossier 'params.resultdir'
 
 	input:
-	val projectID from projectSRId
+	val projectID from projectSRId  // Récupération du numéro SRA
 	
 	output:
-	file 'sra.txt' into sraIDs
+	file 'sra.txt' into sraIDs  //Récupération des numéros SRR dans un fichier txt
 	
 	script:
 	"""
@@ -21,7 +21,7 @@ process getSRAIDs {
 	"""
 }
 
-sraIDs.splitText().map { it -> it.trim() }.filter(  ~/^SRR62858.*/ ).set { singleSRAId}
+sraIDs.splitText().map { it -> it.trim() }.filter(  ~/^SRR62858.*/ ).set { singleSRAId}  //On récupère les numéros SRR qui nous intéresse (8/11 SRR) dans le chanel singleSRAId 
 
 process fastqDump {
 	
