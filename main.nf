@@ -169,7 +169,8 @@ process stat_analysis {
     file 'output.counts' from countData
 
     output:
-    tuple file('PCA_GraphOfIndividuals.pdf'), file('DESeq_results.txt'), file('plot_counts.pdf'), file ('heatmap_MostVariableGenes.pdf'), file ('MostVariableGenes.txt') into ana_stat
+    tuple file('PCA_GraphOfIndividuals.pdf'), file('DESeq_results.txt'), file('plot_counts.pdf'), file ('heatmap_MostVariableGenes.pdf'), file ('MostVariableGenes.txt'),
+          file ('Significative_DEgenes.txt'), file('Significative_DEgenes_Summary.txt') into ana_stat
 
     script:
     """
